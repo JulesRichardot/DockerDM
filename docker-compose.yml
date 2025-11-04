@@ -1,0 +1,85 @@
+services:
+#  db:
+#    build: ./MariaDB
+#    container_name: mariadb_container
+#    environment:
+#      MYSQL_ROOT_PASSWORD: passwd
+#    ports:
+#      - "3306:3306"
+#    volumes:
+#      - db_data:/var/lib/mysql
+
+  db:
+    image: mariadb:latest
+    container_name: mariadb_container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpasswd
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: passwd
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      back:
+        ipv4_address: 170.21.0.10
+
+  adminer:
+    build: ./adminer
+    container_name: adminer_container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - routeur
+    networks:
+      - front
+    extra_hosts:
+      - "db:170.21.0.10"
+    cap_add:
+      - NET_ADMIN
+
+  web:
+    build: ./serveurWeb
+    container_name: web_container
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+      - routeur
+    volumes:
+      - ./serveurWeb/www:/var/www/localhost/htdocs
+    networks:
+      - front
+    extra_hosts:
+      - "db:170.21.0.10"
+    cap_add:
+      - NET_ADMIN
+    
+  routeur:
+    build: ./routeur
+    container_name: routeur_container
+    networks:
+      front:
+        ipv4_address: 170.20.0.2
+      back:
+        ipv4_address: 170.21.0.2
+    cap_add:
+      - NET_ADMIN
+    privileged: true
+    
+  
+volumes:
+  db_data:  
+
+networks:
+  front:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 170.20.0.0/16
+  back:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 170.21.0.0/16
+  
