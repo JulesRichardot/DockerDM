@@ -1,0 +1,25 @@
+# Docker
+*.log
+.docker/
+
+# Données de volumes
+db_data/
+
+# Fichiers temporaires
+*.tmp
+*.swp
+*~
+.DS_Store
+
+# Fichiers système
+Thumbs.db
+desktop.ini
+
+# Fichiers de backup
+*.bak
+*.backup
+
+# Archives (si nécessaire)
+# *.zip
+# *.tar.gz
+
