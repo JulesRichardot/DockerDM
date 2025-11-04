@@ -44,3 +44,21 @@ exo2/
 
 Voir `RAPPORT_REALISATION.md` pour les détails techniques.
 
+## Création d'un dépôt distant (GitHub/GitLab)
+
+Si vous souhaitez pousser ce projet sur un dépôt distant :
+
+1. **Créer un nouveau dépôt sur GitHub/GitLab** (sans initialiser avec README)
+
+2. **Ajouter le remote :**
+   ```bash
+   git remote add origin <URL_du_repo>
+   ```
+
+3. **Pousser le code :**
+   ```bash
+   git push -u origin master
+   ```
+
+Le dépôt local est déjà initialisé avec tous les fichiers du projet.
+
