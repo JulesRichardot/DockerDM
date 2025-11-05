@@ -1,7 +1,21 @@
 FROM alpine:3.16
 
-RUN apk update
-RUN apk add mariadb mariadb-client
-RUN mkdir -p /var/lib/mysql
+# Installer MariaDB
+RUN apk add --no-cache mariadb mariadb-client
 
-CMD
+# Répertoires requis
+RUN mkdir -p /run/mysqld /var/lib/mysql && \
+    chown -R mysql:mysql /run/mysqld /var/lib/mysql
+
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+COPY ./init.sql /docker-entrypoint-initdb.d/init.sql
+COPY ./server.cnf /etc/my.cnf.d/server.cnf
+
+VOLUME ["/var/lib/mysql"]
+
+EXPOSE 3306
+
+# Init si besoin, puis démarrage (UN SEUL processus)
+CMD ["./entrypoint.sh"]

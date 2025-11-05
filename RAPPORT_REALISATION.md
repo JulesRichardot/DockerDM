@@ -26,7 +26,6 @@ Les conteneurs `web` et `adminer` doivent configurer manuellement une route vers
 
 ```bash
 #!/bin/sh
-set -e
 ip route add 170.21.0.0/16 via 170.20.0.2 dev eth0 2>/dev/null || true
 exec httpd -D FOREGROUND
 ```
@@ -37,10 +36,76 @@ Cette route indique que tout le trafic destiné au réseau 170.21.0.0/16 doit pa
 
 Un problème important rencontré est que les services sur le réseau `front` ne peuvent pas résoudre les noms DNS des services sur le réseau `back` car Docker isole les réseaux au niveau DNS. Pour permettre au serveur web de se connecter à la base de données en utilisant le nom `db`, la configuration `extra_hosts` est utilisée dans docker-compose.yml pour mapper le nom `db` vers l'IP fixe 170.21.0.10.
 
-## Problèmes rencontrés
+## Configuration de MariaDB
 
-Le premier problème était l'activation du forwarding IP. Sans les privilèges appropriés, le conteneur routeur ne pouvait pas modifier le paramètre système, générant une erreur "Read-only file system". La solution a été d'ajouter `privileged: true` au conteneur routeur.
+La configuration de MariaDB a été l'un des aspects les plus complexes de l'exercice. Un Dockerfile personnalisé a été créé pour gérer l'initialisation de la base de données. Le script `entrypoint.sh` vérifie si la base de données est déjà initialisée en examinant la présence des tables système. Si ce n'est pas le cas, il :
 
-Le second problème concernait la configuration des routes. Les conteneurs `web` et `adminer` ne pouvaient pas ajouter de routes sans la capacité `NET_ADMIN`. Cette capacité a été ajoutée et des scripts d'entrypoint ont été créés pour configurer automatiquement les routes au démarrage.
+1. Initialise la base de données avec `mysql_install_db`
+2. Démarre temporairement MySQL en mode `--skip-networking` (socket Unix uniquement)
+3. Attend que MySQL soit prêt en vérifiant le socket et en utilisant `mysqladmin ping`
+4. Exécute le script d'initialisation SQL (`init.sql`) pour créer la base de données, l'utilisateur et définir les mots de passe
+5. Arrête proprement le processus temporaire
+6. Démarre le serveur MySQL final qui écoute sur le réseau
 
-Enfin, l'attribution d'IP fixes a nécessité quelques ajustements. L'utilisation de l'adresse .1 était problématique car elle est réservée aux gateways Docker. L'utilisation de .2 pour le routeur a résolu les conflits.
+Le fichier de configuration `server.cnf` définit les paramètres essentiels pour que MariaDB écoute sur le réseau :
+- `port=3306` : port standard MySQL
+- `bind-address=0.0.0.0` : écoute sur toutes les interfaces
+- `skip-networking=0` : active explicitement l'écoute réseau (critique pour résoudre les problèmes de connexion)
+
+## Problèmes rencontrés et solutions
+
+### 1. Activation du forwarding IP
+
+**Problème :** Le conteneur routeur ne pouvait pas activer le forwarding IP, générant l'erreur "Read-only file system" lors de l'exécution de `sysctl -w net.ipv4.ip_forward=1`.
+
+**Solution :** Ajout de `privileged: true` au service `routeur` dans `docker-compose.yml`. Cette option donne au conteneur les privilèges nécessaires pour modifier les paramètres système du noyau.
+
+### 2. Configuration des routes statiques
+
+**Problème :** Les conteneurs `web` et `adminer` ne pouvaient pas ajouter de routes vers le réseau `back`, générant l'erreur "Operation not permitted".
+
+**Solution :** Ajout de la capacité `NET_ADMIN` aux services `web` et `adminer`, et création de scripts d'entrypoint qui ajoutent automatiquement la route `170.21.0.0/16 via 170.20.0.2` au démarrage.
+
+### 3. Conflits d'adresses IP
+
+**Problème :** L'utilisation de l'adresse `.1` pour le routeur causait des conflits car cette adresse est réservée aux gateways Docker par défaut.
+
+**Solution :** Utilisation de l'adresse `.2` pour le routeur sur les deux réseaux (170.20.0.2 et 170.21.0.2), évitant ainsi les conflits avec les gateways automatiques.
+
+### 4. Résolution DNS inter-réseaux
+
+**Problème :** Les services sur le réseau `front` ne pouvaient pas résoudre le nom `db` vers son adresse IP car Docker isole les réseaux au niveau DNS.
+
+**Solution :** Utilisation de `extra_hosts` dans `docker-compose.yml` pour mapper explicitement le nom `db` vers l'adresse IP fixe 170.21.0.10.
+
+### 5. Permissions de la base de données MariaDB
+
+**Problème :** Lors du premier démarrage, MariaDB générait des erreurs de permissions sur `/var/lib/mysql` et `/run/mysqld`, empêchant l'écriture des fichiers de données.
+
+**Solution :** Ajout de commandes `chown` dans le Dockerfile et dans l'entrypoint pour s'assurer que l'utilisateur `mysql` possède les répertoires nécessaires, même après le montage des volumes Docker.
+
+### 6. Initialisation de MariaDB et verrouillage des fichiers
+
+**Problème :** Le processus d'initialisation nécessitait de démarrer temporairement MySQL pour exécuter le script SQL, puis de l'arrêter avant de démarrer le serveur final. Les processus MySQL temporaires ne se terminaient pas complètement, causant des erreurs de verrouillage de fichiers ("Can't lock aria control file", "Unable to lock ./ibdata1") lors du démarrage du serveur final.
+
+**Solution :** 
+- Implémentation d'une logique d'arrêt robuste dans `entrypoint.sh` :
+  - Tentative d'arrêt propre avec `mysqladmin shutdown`
+  - Boucle d'attente pour vérifier la fin des processus avec `pgrep`
+  - Arrêt forcé avec `pkill -9` si nécessaire
+  - Nettoyage des fichiers de verrouillage (socket, fichiers PID)
+- Utilisation de `--skip-networking` pour le processus temporaire afin d'éviter les conflits de port
+
+### 7. MariaDB n'écoute pas sur le port réseau
+
+**Problème :** Même avec `port=3306` et `bind-address=0.0.0.0` dans la configuration, MariaDB affichait `port: 0` dans les logs et n'acceptait pas les connexions TCP, seulement les connexions via socket Unix.
+
+**Solution :** Ajout explicite de `skip-networking=0` dans `server.cnf`. Cette option était nécessaire car MariaDB peut avoir des comportements par défaut qui désactivent l'écoute réseau. En l'explicitant à `0`, on force l'activation de l'écoute réseau TCP.
+
+### 8. Simplification de la configuration
+
+**Problème :** La configuration initiale contenait des options redondantes et des tentatives multiples de connexion/arrêt qui alourdissaient le code.
+
+**Solution :** 
+- **server.cnf** : Suppression des options redondantes (`user`, `datadir`, `socket` qui sont des valeurs par défaut), conservation uniquement des options essentielles pour l'écoute réseau
+- **entrypoint.sh** : Simplification de la logique d'arrêt (suppression des tentatives multiples redondantes, réduction de la boucle d'attente de 15 à 10 itérations, suppression de la double tentative de connexion MySQL)
