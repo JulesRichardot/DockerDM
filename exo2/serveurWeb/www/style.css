@@ -1,0 +1,97 @@
+/* Centrer tout le contenu sauf le div#reference */
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+p {
+    text-align: center;
+}
+
+.messages {
+    text-align: center;
+    margin: 20px auto;
+}
+
+.messages h2 {
+    text-align: center;
+}
+
+.message {
+    text-align: center;
+    margin: 10px auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-width: 600px;
+}
+
+.message p {
+    text-align: center;
+}
+
+.timestamp {
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.panel {
+    text-align: center;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.panel h2 {
+    text-align: center;
+}
+
+.panel p {
+    text-align: center;
+}
+
+form {
+    text-align: center;
+}
+
+textarea {
+    margin: 0 auto;
+    display: block;
+}
+
+button {
+    margin: 10px auto;
+    display: block;
+}
+
+hr {
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+/* Le div#reference reste à gauche */
+#reference {
+    text-align: left !important;
+    margin-left: 0;
+    margin-top: 20px;
+    max-width: none;
+}
+
+#reference p {
+    text-align: left;
+}
+
