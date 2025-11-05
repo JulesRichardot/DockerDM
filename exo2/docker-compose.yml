@@ -13,7 +13,7 @@ services:
     build: ./adminer
     container_name: adminer_container
     ports:
-      - "8080:8080"
+      - "8080:80"
     depends_on:
       - db
       - routeur
