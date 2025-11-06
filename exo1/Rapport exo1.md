@@ -20,6 +20,4 @@ J'ai donc décidé de migrer vers Docker Desktop, pour pouvoir utiliser docker d
 
 J'ai pu reconstruire l'image avec beaucoup moins de dépendances manuelles (uniquement git, gcc, make, et musl-dev).
 
-La construction et l'exécution via PowerShell se sont révélées plus simples et beaucoup plus rapides, tout en gardant le même comportement que sur Linux.
-
 <img width="317" height="125" alt="alpine-couleurs" src="https://github.com/user-attachments/assets/67d642c3-c5d3-4712-a870-b71bba79e3ed" />
