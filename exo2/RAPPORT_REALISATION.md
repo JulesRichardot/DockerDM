@@ -150,83 +150,13 @@ Pour l'utilisateur `root` :
 - **Utilisateur** : `root`
 - **Mot de passe** : `rootpasswd`
 
-## Validation de l'application Web
+## Illustrations
 
-L'image ci-dessous illustre le bon fonctionnement de l'application de messagerie hébergée par le service `web`. Elle confirme la connexion réussie à la base de données MariaDB et la capacité à afficher et ajouter des messages.
+Les images ci-dessous illustrent le bon fonctionnement de l'application de messagerie hébergée par le service `web`. Elles confirment la connexion réussie à la base de données MariaDB et la capacité à afficher et ajouter des messages.
 
-![Interface de l'application de messagerie](image.png)
+![Interface de l'application de messagerie](/images/messagerie.png)
 
-**Description détaillée de l'image :**
+![Interface de adminer](/images/adminer.png)
 
-L'image présente une interface web simple intitulée "Messagerie", affichant le statut de la connexion à la base de données et une liste de messages récents, ainsi qu'un formulaire pour ajouter de nouveaux messages.
 
-**Description générale :**
-L'interface est épurée, avec un fond blanc et du texte noir. Le titre principal "Messagerie" est centré en haut de la page.
 
-**Détails du contenu :**
-
-1. **Statut de la connexion :**
-   - Juste en dessous du titre, on peut lire "Connexion PDO OK à mydb via db:3306", indiquant une connexion réussie à la base de données `mydb` via le service `db` sur le port 3306.
-   - En vert, un message de succès "Message ajouté avec succès!" est affiché, suggérant qu'une opération d'ajout de message vient d'être effectuée avec succès.
-
-2. **Messages récents :**
-   - Un titre "Messages récents:" est affiché.
-   - En dessous, un cadre blanc contient un message unique :
-     - "Hello World!" (le contenu du message)
-     - "2025-11-05 22:45:01" (la date et l'heure d'envoi du message)
-
-3. **Formulaire d'ajout de message :**
-   - Un titre "Ajouter un message" est présent.
-   - Un champ de texte (`textarea`) est visible avec le placeholder "Tapez votre message ici...".
-   - Un bouton "Envoyer" est situé en dessous du champ de texte.
-
-4. **Message d'accueil :**
-   - En bas de la page, un message d'accueil est affiché : "Bienvenue sur la messagerie. Ajoutez un message et retrouvez-le ci-dessus."
-
-**Pertinence pour le rapport :**
-Cette image démontre le bon fonctionnement de l'application web (`web_container`), sa capacité à se connecter à la base de données MariaDB (`mariadb_container`) via le réseau routé, et la persistance des données (affichage du message "Hello World!"). Le message de succès "Message ajouté avec succès!" confirme qu'une interaction complète avec la base de données (insertion) a été réalisée avec succès.
-
-## Validation de l'interface Adminer
-
-L'image ci-dessous montre l'interface d'Adminer après une connexion réussie à la base de données `mydb`. Elle confirme que la base de données est accessible via le routage inter-réseaux et que la table `messages` a été créée et est visible.
-
-![Interface Adminer connectée à mydb](image.png)
-
-**Description détaillée de l'image :**
-
-L'image affiche l'interface de gestion de base de données Adminer, connectée à une base de données MariaDB nommée "mydb". L'interface est dominée par des tons de bleu foncé avec du texte blanc et bleu clair.
-
-**Barre supérieure :**
-- Un menu déroulant "Langue: Français" indique que l'interface est en français.
-- "Adminer 5.4.1" est affiché, indiquant la version de l'outil.
-- Le titre principal "MariaDB » db » Base de données: mydb" confirme le type de base de données (MariaDB) et la base sélectionnée (mydb).
-- Une barre de navigation contient plusieurs onglets : "Modifier la base de données", "Schéma de la base de données", "Privilèges", "Routines" et "Évènements". L'onglet "Base de données: mydb" est actif.
-
-**Sidebar gauche :**
-- Une section "Adminer 5.4.1" en haut.
-- Un menu déroulant affichant "mydb" sélectionné, permettant de basculer entre différentes bases de données.
-- Des liens pour "Requête SQL", "Importer", "Exporter" et "Créer une table".
-
-**Zone principale (Tables et vues) :**
-- Un champ de recherche "Rechercher dans les tables (1)" avec un bouton "Rechercher".
-- Un tableau listant les objets de la base de données avec les colonnes suivantes : case à cocher, "Table", "Moteur?", "Interclassement?", "Longueur des données?", "Longueur de l'index?", "Espace inutilisé?", "Incrément automatique?", "Lignes?" et "Commentaire?".
-- Une table nommée "messages" est listée avec les détails suivants :
-  - Moteur : "InnoDB"
-  - Interclassement : "utf8mb4_unicode_ci"
-  - Longueur des données : "16,384"
-  - Longueur de l'index : "0"
-  - Espace inutilisé : "0"
-  - Incrément automatique : "2"
-  - Lignes : "~1" (environ 1)
-  - Commentaire : (vide)
-- Une ligne "1 au total" résume ces informations.
-- Des actions sont disponibles pour les éléments sélectionnés : "Analyser", "Optimiser", "Vérifier", "Réparer", "Tronquer" et "Supprimer".
-- Une option "Déplacer vers une autre base de données" avec un menu déroulant et des boutons "Déplacer" et "Copier".
-- Des liens pour "Créer une table" et "Créer une vue".
-
-**Sections Routines et Évènements :**
-- Dans "Routines", des liens pour "Créer une procédure" et "Créer une fonction".
-- Dans "Évènements", un lien pour "Créer un évènement".
-
-**Pertinence pour le rapport :**
-Cette image valide visuellement que la configuration d'Adminer fonctionne correctement, que la connexion à la base de données MariaDB via le routage inter-réseaux est établie avec succès, et que la base de données `mydb` avec sa table `messages` est bien en place et accessible. Elle démontre également que le service `adminer_container` sur le réseau `front` peut effectivement communiquer avec le service `mariadb_container` sur le réseau `back` via le routeur.
