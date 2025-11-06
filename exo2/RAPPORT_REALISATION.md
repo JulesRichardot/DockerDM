@@ -154,9 +154,10 @@ Pour l'utilisateur `root` :
 
 Les images ci-dessous illustrent le bon fonctionnement de l'application de messagerie hébergée par le service `web`. Elles confirment la connexion réussie à la base de données MariaDB et la capacité à afficher et ajouter des messages.
 
-![Interface de l'application de messagerie](/images/messagerie.png)
+<img width="669" height="588" alt="messagerie" src="https://github.com/user-attachments/assets/743c4a3b-fc98-4c72-b92f-cab2686494f8" />
 
-![Interface de adminer](/images/adminer.png)
+<img width="1442" height="679" alt="adminer" src="https://github.com/user-attachments/assets/077d0d33-3bd4-4116-8464-46a1ef8d7d0d" />
 
 
 
+<img width="353" height="90" alt="ref" src="https://github.com/user-attachments/assets/658678a2-f04f-4b56-bd0f-bc438b7bc972" />
