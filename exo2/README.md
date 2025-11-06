@@ -17,7 +17,7 @@ docker-compose up -d --build
 ## Accès aux services
 
 - **Serveur web** : http://localhost
-- **Adminer** : http://localhost:8080
+- **Adminer** : http://localhost:8080/adminer.php
   - Serveur : `db`
   - Utilisateur : `user`
   - Mot de passe : `passwd`
